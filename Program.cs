@@ -1,91 +1,92 @@
+using Microsoft.EntityFrameworkCore;
+
 var builder = WebApplication.CreateBuilder(args);
+
+builder.Services.AddDbContext<AppDbContext>(options =>
+    options.UseSqlite(builder.Configuration.GetConnectionString("Padrao")));
+
 var app = builder.Build();
 
-var ninjas = new List<NinjaDto>
-{
-    new NinjaDto(1, "Naruto Uzumaki", "Uzumaki", "Konohagakure", 17, 9500),
-    new NinjaDto(2, "Sasuke Uchiha", "Uchiha", "Konohagakure", 17, 9400),
-    new NinjaDto(3, "Sakura Haruno", "Haruno", "Konohagakure", 17, 7800),
-    new NinjaDto(4, "Kakashi Hatake", "Hatake", "Konohagakure", 31, 8900),
-    new NinjaDto(5, "Gaara", "Sabaku", "Sunagakure", 17, 8700),
-    new NinjaDto(6, "Hinata Hyuuga", "Hyuuga", "Konohagakure", 17, 7200),
-    new NinjaDto(7, "Shikamaru Nara", "Nara", "Konohagakure", 17, 7400),
-    new NinjaDto(8, "Neji Hyuuga", "Hyuuga", "Konohagakure", 18, 8100),
-    new NinjaDto(9, "Itachi Uchiha", "Uchiha", "Konohagakure", 21, 9600),
-    new NinjaDto(10, "Killer Bee", "Kumo", "Kumogakure", 40, 9200),
-};
 
-app.MapGet("/api/ninjas", () =>
+app.UseDefaultFiles();
+app.UseStaticFiles();
+
+
+app.MapGet("/api", () => Results.Ok(new
 {
-    return Results.Ok(ninjas);
+    mensagem = "API de Ninjas de Naruto no ar!",
+    status = "Online"
+}));
+
+// listar
+app.MapGet("/api/ninjas", async (AppDbContext db) =>
+{
+    return Results.Ok(await db.Ninjas.ToListAsync());
 });
 
-app.MapGet("/api/ninjas/{id:int}", (int id) =>
+// buscar por id
+app.MapGet("/api/ninjas/{id:int}", async (int id, AppDbContext db) =>
 {
-    var ninja = ninjas.FirstOrDefault(ninjaDaLista => ninjaDaLista.Id == id);
+    var ninja = await db.Ninjas.FindAsync(id);
 
-    if (ninja is null)
+    return ninja is null
+        ? Results.NotFound(new { mensagem = $"Ninja com ID {id} não encontrado." })
+        : Results.Ok(ninja);
+});
+
+// cadastrar
+app.MapPost("/api/ninjas", async (NinjaEntradaDto dados, AppDbContext db) =>
+{
+    var novoNinja = new Ninja
     {
-        return Results.NotFound();
-    }
+        Nome = dados.Nome,
+        Cla = dados.Cla,
+        Aldeia = dados.Aldeia,
+        Idade = dados.Idade,
+        NivelDePoder = dados.NivelDePoder
+    };
 
-    return Results.Ok(ninja);
-});
-
-app.MapPost("/api/ninjas", (NinjaEntradaDto dados) =>
-{
-    int proximoId = ninjas.Count == 0 ? 1 : ninjas.Max(ninjaDaLista => ninjaDaLista.Id) + 1;
-
-    var novoNinja = new NinjaDto(
-        proximoId,
-        dados.Nome,
-        dados.Cla,
-        dados.Aldeia,
-        dados.Idade,
-        dados.NivelDePoder);
-
-    ninjas.Add(novoNinja);
+    db.Ninjas.Add(novoNinja);
+    await db.SaveChangesAsync();
 
     return Results.Created($"/api/ninjas/{novoNinja.Id}", novoNinja);
 });
 
-app.MapPut("/api/ninjas/{id:int}", (int id, NinjaEntradaDto dados) =>
+// atualizar
+app.MapPut("/api/ninjas/{id:int}", async (int id, NinjaEntradaDto dados, AppDbContext db) =>
 {
-    int indice = ninjas.FindIndex(ninjaDaLista => ninjaDaLista.Id == id);
-
-    if (indice == -1)
+    var ninja = await db.Ninjas.FindAsync(id);
+    if (ninja is null)
     {
-        return Results.NotFound();
+        return Results.NotFound(new { mensagem = $"Ninja com ID {id} não encontrado." });
     }
 
-    var ninjaAtualizado = new NinjaDto(
-        id,
-        dados.Nome,
-        dados.Cla,
-        dados.Aldeia,
-        dados.Idade,
-        dados.NivelDePoder);
+    ninja.Nome = dados.Nome;
+    ninja.Cla = dados.Cla;
+    ninja.Aldeia = dados.Aldeia;
+    ninja.Idade = dados.Idade;
+    ninja.NivelDePoder = dados.NivelDePoder;
 
-    ninjas[indice] = ninjaAtualizado;
+    await db.SaveChangesAsync();
 
-    return Results.Ok(ninjaAtualizado);
+    return Results.Ok(ninja);
 });
 
-app.MapDelete("/api/ninjas/{id:int}", (int id) =>
+// remover
+app.MapDelete("/api/ninjas/{id:int}", async (int id, AppDbContext db) =>
 {
-    int indice = ninjas.FindIndex(ninjaDaLista => ninjaDaLista.Id == id);
-
-    if (indice == -1)
+    var ninja = await db.Ninjas.FindAsync(id);
+    if (ninja is null)
     {
-        return Results.NotFound();
+        return Results.NotFound(new { mensagem = $"Ninja com ID {id} não encontrado." });
     }
 
-    ninjas.RemoveAt(indice);
+    db.Ninjas.Remove(ninja);
+    await db.SaveChangesAsync();
 
     return Results.NoContent();
 });
 
 app.Run();
 
-record NinjaDto(int Id, string Nome, string Cla, string Aldeia, int Idade, int NivelDePoder);
 record NinjaEntradaDto(string Nome, string Cla, string Aldeia, int Idade, int NivelDePoder);

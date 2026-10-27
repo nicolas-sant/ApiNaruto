@@ -1,0 +1,59 @@
+# ---- Saídas de build do .NET ----
+bin/
+obj/
+[Dd]ebug/
+[Rr]elease/
+[Bb]uild/
+artifacts/
+*.dll
+*.exe
+*.pdb
+*.cache
+
+# ---- Arquivos de usuário / IDE ----
+*.user
+*.suo
+*.userosscache
+*.sln.docstates
+*.userprefs
+.vs/
+.vscode/
+.idea/
+
+# ---- Banco SQLite (recriado com "dotnet ef database update") ----
+*.db
+*.db-shm
+*.db-wal
+*.sqlite
+*.sqlite3
+
+# ---- Pacotes / ferramentas ----
+packages/
+!packages/build/
+*.nupkg
+*.snupkg
+.nuget/
+project.lock.json
+project.fragment.lock.json
+
+# ---- Logs e temporários ----
+*.log
+*.tmp
+*.swp
+*~
+
+# ---- Publicação ----
+publish/
+*.publishsettings
+PublishScripts/
+
+# ---- Sistema operacional ----
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+$RECYCLE.BIN/
+.DS_Store
+
+# ---- Segredos locais (descomente se usar connection string real) ----
+# appsettings.Local.json
+# secrets.json

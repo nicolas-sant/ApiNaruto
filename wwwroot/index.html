@@ -1,0 +1,398 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Ninjas de Naruto</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:wght@600;800&family=DM+Sans:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --abyss:#120b05; --deep:#1f1408; --raised:#30200d; --line:#4a3214;
+  --flame:#ff8a1f; --flame-2:#ffb45c; --ice:#fdf1e2; --mist:#c4a480; --danger:#ff6b7f;
+  --display:"Bricolage Grotesque","Segoe UI",system-ui,sans-serif;
+  --body:"DM Sans","Segoe UI",system-ui,sans-serif;
+}
+*{box-sizing:border-box;margin:0}
+body{
+  min-height:100vh;font:400 1rem/1.5 var(--body);color:var(--ice);
+  background:radial-gradient(900px 480px at 12% -10%,#8a450a55,transparent 70%),var(--abyss);
+}
+button,input,select{font:inherit;color:inherit}
+:focus-visible{outline:2px solid var(--flame-2);outline-offset:2px}
+.wrap{width:min(1120px,100% - 2.5rem);margin-inline:auto;padding-block:3rem 4rem}
+
+header{display:flex;flex-wrap:wrap;gap:1.5rem;justify-content:space-between;align-items:flex-end;margin-bottom:2rem}
+h1{font:800 clamp(2.2rem,5.5vw,3.6rem)/1 var(--display);letter-spacing:-.03em}
+.sub{color:var(--mist);margin-top:.6rem;max-width:46ch}
+.stats{display:flex;gap:2rem}
+.stat b{display:block;font:800 2rem/1 var(--display);color:var(--flame-2)}
+.stat span{color:var(--mist);font-size:.9rem}
+
+.toolbar{display:flex;flex-wrap:wrap;gap:.75rem;margin-bottom:1.75rem}
+.field-search{flex:1 1 240px}
+input,select{
+  width:100%;background:var(--deep);border:1px solid var(--line);border-radius:10px;
+  padding:.7rem .9rem;transition:border-color .15s,background .15s;
+}
+input::placeholder{color:#9a7a52}
+input:hover,select:hover{border-color:#6b4a1e}
+input:focus,select:focus{border-color:var(--flame);outline:none;background:#27190a}
+select{width:auto;cursor:pointer}
+
+.btn{
+  border:1px solid transparent;border-radius:10px;padding:.7rem 1.15rem;font-weight:700;cursor:pointer;
+  transition:background .15s,transform .1s,border-color .15s;
+}
+.btn:active{transform:scale(.97)}
+.btn:disabled{opacity:.6;cursor:wait}
+.btn-primary{background:var(--flame);color:#2a1403}
+.btn-primary:hover{background:var(--flame-2)}
+.btn-ghost{background:transparent;border-color:var(--line);color:var(--ice)}
+.btn-ghost:hover{background:var(--raised)}
+.btn-danger{background:var(--danger);color:#2a0710}
+.btn-danger:hover{background:#ff8a99}
+
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(235px,1fr));gap:1.5rem}
+.card{background:var(--deep);border:1px solid var(--line);border-radius:16px;padding:1rem 1rem 1.1rem}
+.sleeve{position:relative;width:78%;aspect-ratio:1;margin-bottom:1.1rem}
+.crest{
+  position:absolute;inset:0;z-index:1;border-radius:50%;display:grid;place-items:center;
+  background:linear-gradient(150deg,hsl(var(--h) 85% 48%),hsl(calc(var(--h) - 18) 80% 18%));
+  box-shadow:0 10px 24px #1a0a0099;overflow:hidden;
+}
+.crest::before{
+  content:"";position:absolute;inset:8%;border-radius:50%;border:2px dashed #ffffff30;
+}
+.crest b{position:relative;font:800 2.6rem/1 var(--display);letter-spacing:-.02em;color:#fffffff0}
+.shuriken{
+  position:absolute;top:6%;left:6%;height:88%;aspect-ratio:1;
+  background:conic-gradient(from 45deg,#e8dccb 0 25%,#8e7b63 0 50%,#e8dccb 0 75%,#8e7b63 0);
+  clip-path:polygon(50% 0,62% 38%,100% 50%,62% 62%,50% 100%,38% 62%,0 50%,38% 38%);
+  transition:transform .45s cubic-bezier(.2,.8,.2,1);
+}
+.card:hover .shuriken,.card:focus-within .shuriken{transform:translateX(30%) rotate(140deg)}
+.card h2{font:600 1.2rem/1.2 var(--display);margin-bottom:.25rem;overflow-wrap:anywhere}
+.meta{color:var(--mist);font-size:.92rem}
+.rank{
+  display:inline-block;margin-bottom:.5rem;font-size:.72rem;font-weight:700;letter-spacing:.08em;
+  text-transform:uppercase;border-radius:6px;padding:.15rem .5rem;background:var(--raised);color:var(--flame-2);
+}
+.poder{margin-top:.7rem}
+.poder-topo{display:flex;justify-content:space-between;font-size:.82rem;color:var(--mist);margin-bottom:.3rem}
+.poder-topo b{color:var(--ice)}
+.barra{height:6px;border-radius:99px;background:#3a2611;overflow:hidden}
+.barra i{display:block;height:100%;border-radius:99px;background:linear-gradient(90deg,var(--flame),var(--flame-2))}
+.actions{display:flex;gap:.5rem;margin-top:1rem}
+.actions .btn{flex:1;padding:.5rem .6rem;font-size:.9rem}
+
+.skeleton{height:360px;border-radius:16px;background:linear-gradient(100deg,var(--deep) 30%,var(--raised) 50%,var(--deep) 70%);background-size:200% 100%;animation:sh 1.3s linear infinite}
+@keyframes sh{to{background-position:-200% 0}}
+
+.state{grid-column:1/-1;text-align:center;padding:3.5rem 1rem;border:1px dashed var(--line);border-radius:16px;color:var(--mist)}
+.state h3{font:600 1.3rem var(--display);color:var(--ice);margin-bottom:.4rem}
+.state .btn{margin-top:1.1rem}
+
+dialog{
+  margin:auto;width:min(440px,calc(100% - 2rem));padding:1.6rem;border:1px solid var(--line);border-radius:18px;
+  background:var(--deep);color:var(--ice);box-shadow:0 30px 80px #000a;
+}
+dialog::backdrop{background:#120a02cc;backdrop-filter:blur(4px)}
+dialog[open]{animation:pop .22s cubic-bezier(.2,.8,.2,1)}
+@keyframes pop{from{opacity:0;transform:translateY(10px) scale(.97)}}
+dialog h2{font:800 1.5rem var(--display);margin-bottom:1.1rem}
+dialog p{color:var(--mist)}
+label{display:block;font-weight:500;font-size:.92rem;margin:.9rem 0 .35rem}
+.row{display:grid;grid-template-columns:1fr 1fr;gap:.9rem}
+.dlg-actions{display:flex;justify-content:flex-end;gap:.6rem;margin-top:1.5rem}
+
+#toast{
+  position:fixed;left:50%;bottom:1.5rem;transform:translate(-50%,20px);opacity:0;pointer-events:none;
+  background:var(--raised);border:1px solid var(--flame);padding:.7rem 1.2rem;border-radius:12px;font-weight:500;
+  transition:opacity .2s,transform .2s;
+}
+#toast.show{opacity:1;transform:translate(-50%,0)}
+#toast.err{border-color:var(--danger)}
+
+.log{margin-top:2.5rem;background:var(--deep);border:1px solid var(--line);border-radius:16px;padding:1rem 1.1rem}
+.log-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:.7rem}
+.log-head h2{font:600 1.1rem var(--display)}
+.log ul{list-style:none;padding:0;margin:0;display:grid;gap:.45rem;max-height:230px;overflow:auto}
+.log li{display:flex;flex-wrap:wrap;align-items:center;gap:.3rem .75rem;font:.88rem ui-monospace,Consolas,monospace}
+.log li b{min-width:3.4rem}
+.log .url{color:var(--mist);overflow-wrap:anywhere}
+.log .hora{margin-left:auto;color:#9a7a52}
+.log .vazio{color:var(--mist);font-family:var(--body)}
+.cod{min-width:3.2rem;text-align:center;border-radius:8px;padding:.05rem .5rem;font-weight:700}
+.cod.ok{background:#123a30;color:#5eeaa8}
+.cod.warn{background:#3d2f0f;color:#ffc857}
+.cod.bad{background:#46141d;color:var(--danger)}
+@media (max-width:560px){.stats{gap:1.4rem}.row{grid-template-columns:1fr}}
+@media (prefers-reduced-motion:reduce){*,*::before,*::after{animation:none!important;transition:none!important}}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <div>
+      <h1>Ninjas de Naruto</h1>
+      <p class="sub">Seu registro ninja, guardado no banco de dados. Tudo o que você cadastrar, editar ou excluir aqui fica salvo.</p>
+    </div>
+    <div class="stats" aria-live="polite">
+      <div class="stat"><b id="stNinjas">0</b><span>ninjas</span></div>
+      <div class="stat"><b id="stAldeias">0</b><span>aldeias</span></div>
+    </div>
+  </header>
+
+  <div class="toolbar">
+    <div class="field-search">
+      <input id="busca" type="search" placeholder="Buscar por nome, clã ou aldeia" aria-label="Buscar ninja">
+    </div>
+    <select id="ordem" aria-label="Ordenar ninjas">
+      <option value="poder-desc">Maior nível de poder</option>
+      <option value="poder-asc">Menor nível de poder</option>
+      <option value="nome">Nome (A a Z)</option>
+      <option value="idade">Mais jovens primeiro</option>
+    </select>
+    <button class="btn btn-primary" id="btnNovo">Novo ninja</button>
+  </div>
+
+  <main class="grid" id="grid" aria-live="polite"></main>
+
+  <section class="log" aria-label="Respostas da API">
+    <div class="log-head">
+      <h2>Respostas da API</h2>
+      <button class="btn btn-ghost" id="btnLimpar" style="padding:.4rem .8rem;font-size:.85rem">Limpar</button>
+    </div>
+    <ul id="logLista" aria-live="polite"><li class="vazio">Nenhuma requisição ainda.</li></ul>
+  </section>
+</div>
+
+<dialog id="dlgForm">
+  <form id="form" novalidate>
+    <h2 id="formTitulo">Novo ninja</h2>
+    <label for="nome">Nome</label>
+    <input id="nome" required maxlength="120" autocomplete="off" placeholder="Ex.: Rock Lee">
+    <div class="row">
+      <div>
+        <label for="cla">Clã</label>
+        <input id="cla" required maxlength="60" autocomplete="off" placeholder="Lee">
+      </div>
+      <div>
+        <label for="aldeia">Aldeia</label>
+        <input id="aldeia" required maxlength="60" autocomplete="off" placeholder="Konohagakure">
+      </div>
+    </div>
+    <div class="row">
+      <div>
+        <label for="idade">Idade</label>
+        <input id="idade" type="number" required min="1" max="120" placeholder="18">
+      </div>
+      <div>
+        <label for="poder">Nível de poder</label>
+        <input id="poder" type="number" required min="0" max="10000" placeholder="7600">
+      </div>
+    </div>
+    <p id="formErro" role="alert" style="color:var(--danger);margin-top:.9rem;font-size:.92rem"></p>
+    <div class="dlg-actions">
+      <button type="button" class="btn btn-ghost" data-fechar>Cancelar</button>
+      <button type="submit" class="btn btn-primary" id="btnSalvar">Cadastrar ninja</button>
+    </div>
+  </form>
+</dialog>
+
+<dialog id="dlgExcluir">
+  <h2>Excluir ninja?</h2>
+  <p id="excluirTexto"></p>
+  <div class="dlg-actions">
+    <button type="button" class="btn btn-ghost" data-fechar>Cancelar</button>
+    <button type="button" class="btn btn-danger" id="btnExcluir">Excluir ninja</button>
+  </div>
+</dialog>
+
+<div id="toast" role="status"></div>
+
+<script>
+const API = "/api/ninjas";           // caminho relativo: mesma origem da API
+const $ = (id) => document.getElementById(id);
+let ninjas = [], editandoId = null, excluindoId = null;
+const PODER_MAX = 10000;
+
+const esc = (s) => String(s).replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+const matiz = (t) => { let h = 0; for (const c of t) h = (h * 31 + c.charCodeAt(0)) % 360; return 12 + (h % 48); };
+const patente = (p) => p >= 9000 ? "Kage" : p >= 8000 ? "Jounin" : p >= 7000 ? "Chunin" : "Genin";
+
+const TEXTOS = { 200: "OK", 201: "Created", 204: "No Content", 400: "Bad Request", 403: "Forbidden", 404: "Not Found", 500: "Internal Server Error" };
+let ultimoStatus = 0;
+
+function registrar(metodo, url, status) {
+  ultimoStatus = status;
+  const ul = $("logLista");
+  ul.querySelector(".vazio")?.remove();
+  const classe = status >= 200 && status < 300 ? "ok" : status >= 400 && status < 500 ? "warn" : "bad";
+  const li = document.createElement("li");
+  li.innerHTML = `<b>${metodo}</b><span class="cod ${classe}">${status || "ERR"}</span>
+    <span>${status ? (TEXTOS[status] || "") : "Sem resposta"}</span><span class="url">${esc(url)}</span>
+    <span class="hora">${new Date().toLocaleTimeString("pt-BR")}</span>`;
+  ul.prepend(li);
+  while (ul.children.length > 30) ul.lastChild.remove();
+}
+
+const msgErro = (err) => err.status ? `${err.status}: ${err.message}` : err.message;
+
+async function chamar(url, opts = {}) {
+  const metodo = opts.method || "GET";
+  let r;
+  try {
+    r = await fetch(url, { headers: { "Content-Type": "application/json" }, ...opts });
+  } catch {
+    registrar(metodo, url, 0);
+    throw new Error("Sem resposta da API. Confira se ela está rodando.");
+  }
+  registrar(metodo, url, r.status);
+  if (r.status === 204) return null;
+  const dados = await r.json().catch(() => ({}));
+  if (!r.ok) {
+    const e = new Error(dados.mensagem || `Erro ${r.status} ao falar com a API.`);
+    e.status = r.status;
+    throw e;
+  }
+  return dados;
+}
+
+let toastTimer;
+function aviso(msg, erro = false) {
+  const t = $("toast");
+  t.textContent = msg; t.className = "show" + (erro ? " err" : "");
+  clearTimeout(toastTimer); toastTimer = setTimeout(() => t.className = "", 2800);
+}
+
+async function carregar() {
+  $("grid").innerHTML = '<div class="skeleton"></div>'.repeat(3);
+  try {
+    ninjas = await chamar(API);
+    desenhar();
+  } catch {
+    $("grid").innerHTML = `<div class="state"><h3>Não foi possível conectar à API</h3>
+      <p>Confirme que ela está rodando (dotnet run) e tente de novo.</p>
+      <button class="btn btn-primary" id="btnRetry">Tentar de novo</button></div>`;
+    $("btnRetry").onclick = carregar;
+  }
+}
+
+function desenhar() {
+  $("stNinjas").textContent = ninjas.length;
+  $("stAldeias").textContent = new Set(ninjas.map(n => n.aldeia.toLowerCase())).size;
+
+  const q = $("busca").value.trim().toLowerCase();
+  const o = $("ordem").value;
+  const lista = ninjas
+    .filter(n => n.nome.toLowerCase().includes(q) || n.cla.toLowerCase().includes(q) || n.aldeia.toLowerCase().includes(q))
+    .sort((a, b) => o === "nome" ? a.nome.localeCompare(b.nome, "pt-BR")
+      : o === "idade" ? a.idade - b.idade
+      : o === "poder-asc" ? a.nivelDePoder - b.nivelDePoder : b.nivelDePoder - a.nivelDePoder);
+
+  if (!lista.length) {
+    $("grid").innerHTML = ninjas.length
+      ? `<div class="state"><h3>Nenhum ninja encontrado</h3><p>Tente outro nome, clã ou aldeia.</p></div>`
+      : `<div class="state"><h3>Nenhum ninja cadastrado</h3><p>Cadastre o primeiro para começar o registro.</p>
+         <button class="btn btn-primary" id="btnVazio">Novo ninja</button></div>`;
+    if ($("btnVazio")) $("btnVazio").onclick = () => abrirForm();
+    return;
+  }
+
+  $("grid").innerHTML = lista.map(n => `
+    <article class="card" style="--h:${matiz(n.cla)}">
+      <div class="sleeve"><div class="shuriken"></div><div class="crest"><b>${esc(n.nome.trim().charAt(0).toUpperCase())}</b></div></div>
+      <span class="rank">${patente(n.nivelDePoder)}</span>
+      <h2>${esc(n.nome)}</h2>
+      <p class="meta">Clã ${esc(n.cla)} · ${esc(n.aldeia)} · ${n.idade} anos</p>
+      <div class="poder">
+        <div class="poder-topo"><span>Nível de poder</span><b>${n.nivelDePoder}</b></div>
+        <div class="barra"><i style="width:${Math.min(100, (n.nivelDePoder / PODER_MAX) * 100)}%"></i></div>
+      </div>
+      <div class="actions">
+        <button class="btn btn-ghost" data-acao="editar" data-id="${n.id}">Editar</button>
+        <button class="btn btn-ghost" data-acao="excluir" data-id="${n.id}">Excluir</button>
+      </div>
+    </article>`).join("");
+}
+
+function abrirForm(ninja = null) {
+  editandoId = ninja ? ninja.id : null;
+  $("formTitulo").textContent = ninja ? "Editar ninja" : "Novo ninja";
+  $("btnSalvar").textContent = ninja ? "Salvar alterações" : "Cadastrar ninja";
+  $("nome").value = ninja ? ninja.nome : "";
+  $("cla").value = ninja ? ninja.cla : "";
+  $("aldeia").value = ninja ? ninja.aldeia : "";
+  $("idade").value = ninja ? ninja.idade : "";
+  $("poder").value = ninja ? ninja.nivelDePoder : "";
+  $("formErro").textContent = "";
+  $("dlgForm").showModal();
+  $("nome").focus();
+}
+
+$("form").addEventListener("submit", async (e) => {
+  e.preventDefault();
+  const nome = $("nome").value.trim(), cla = $("cla").value.trim(), aldeia = $("aldeia").value.trim();
+  const idade = Number($("idade").value), poder = Number($("poder").value);
+  const erro = !nome ? "Informe o nome do ninja."
+    : !cla ? "Informe o clã do ninja."
+    : !aldeia ? "Informe a aldeia do ninja."
+    : !Number.isInteger(idade) || idade < 1 || idade > 120 ? "A idade deve estar entre 1 e 120."
+    : !Number.isInteger(poder) || poder < 0 || poder > PODER_MAX ? `O nível de poder deve estar entre 0 e ${PODER_MAX}.` : "";
+  if (erro) { $("formErro").textContent = erro; return; }
+
+  const corpo = JSON.stringify({ nome, cla, aldeia, idade, nivelDePoder: poder });
+  $("btnSalvar").disabled = true;
+  try {
+    if (editandoId) { await chamar(`${API}/${editandoId}`, { method: "PUT", body: corpo }); aviso(`Ninja atualizado (${ultimoStatus})`); }
+    else { await chamar(API, { method: "POST", body: corpo }); aviso(`Ninja cadastrado (${ultimoStatus})`); }
+    $("dlgForm").close();
+    await recarregarLista();
+  } catch (err) {
+    $("formErro").textContent = msgErro(err);
+    if (err.status === 404) { aviso(msgErro(err), true); $("dlgForm").close(); await recarregarLista(); }
+  } finally { $("btnSalvar").disabled = false; }
+});
+
+async function recarregarLista() {
+  try { ninjas = await chamar(API); desenhar(); } catch (err) { aviso(msgErro(err), true); }
+}
+
+$("grid").addEventListener("click", async (e) => {
+  const b = e.target.closest("[data-acao]"); if (!b) return;
+  const ninja = ninjas.find(n => n.id === Number(b.dataset.id)); if (!ninja) return;
+  if (b.dataset.acao === "editar") {
+    try { abrirForm(await chamar(`${API}/${ninja.id}`)); }
+    catch (err) { aviso(msgErro(err), true); await recarregarLista(); }
+  } else {
+    excluindoId = ninja.id;
+    $("excluirTexto").textContent = `“${ninja.nome}” será removido do banco de dados. Essa ação não pode ser desfeita.`;
+    $("dlgExcluir").showModal();
+  }
+});
+
+$("btnExcluir").onclick = async () => {
+  $("btnExcluir").disabled = true;
+  try {
+    await chamar(`${API}/${excluindoId}`, { method: "DELETE" });
+    aviso(`Ninja excluído (${ultimoStatus})`);
+  } catch (err) { aviso(msgErro(err), true); }
+  $("btnExcluir").disabled = false;
+  $("dlgExcluir").close();
+  await recarregarLista();
+};
+
+document.querySelectorAll("[data-fechar]").forEach(b => b.onclick = () => b.closest("dialog").close());
+document.querySelectorAll("dialog").forEach(d => d.addEventListener("click", (e) => { if (e.target === d) d.close(); }));
+$("btnNovo").onclick = () => abrirForm();
+$("btnLimpar").onclick = () => { $("logLista").innerHTML = '<li class="vazio">Nenhuma requisição ainda.</li>'; };
+$("busca").oninput = desenhar;
+$("ordem").onchange = desenhar;
+
+carregar();
+</script>
+</body>
+</html>
