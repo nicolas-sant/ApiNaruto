@@ -22,14 +22,14 @@ dotnet --version
 ## Como executar
 
 ```bash
-cd backend
-dotnet new web -o ApiNaruto
+git clone https://github.com/nicolas-sant/ApiNaruto.git
 cd ApiNaruto
-code .
+dotnet tool install --global dotnet-ef   # só na primeira vez
+dotnet ef database update                # cria o ninjas.db com os 10 ninjas iniciais
 dotnet run
 ```
 
-Substitua o conteúdo do `Program.cs` gerado pelo código da API antes de rodar `dotnet run`.
+Depois é só abrir `http://localhost:5107` no navegador para usar a interface web, ou chamar os endpoints diretamente.
 
 ---
 
@@ -98,6 +98,29 @@ O `id` que vale é o da rota. Se ele também for enviado no corpo, é simplesmen
 
 ## Persistência
 
-> **Atenção:** os dados ficam armazenados **somente em memória**, em uma lista declarada no próprio `Program.cs`. Não há banco de dados nem arquivo de persistência.
->
-> Tudo que for cadastrado, atualizado ou removido durante a execução é perdido assim que a aplicação é encerrada. A cada `dotnet run` a lista volta aos 10 ninjas iniciais.
+Os dados ficam em um banco **SQLite** (`ninjas.db`), acessado com **Entity Framework Core**:
+
+- `Ninja.cs` é a entidade e `AppDbContext.cs` o contexto do banco.
+- A migration `CriarTabelaNinjas` cria a tabela e já insere 10 ninjas iniciais (seed via `HasData`).
+- A string de conexão fica em `appsettings.json` (`ConnectionStrings:Padrao`).
+- O cadastro e a atualização recebem um DTO de entrada (`NinjaEntradaDto`), então o cliente não controla o `id`.
+
+Os registros continuam salvos depois que a aplicação é encerrada.
+
+---
+
+## Interface web
+
+A pasta `wwwroot` tem uma página (`index.html`) servida pela própria API que lista, cadastra, edita e remove ninjas consumindo os endpoints com `fetch`.
+
+---
+
+## Testando as requisições
+
+A pasta `bruno/Api Ninjas` tem uma coleção do [Bruno](https://www.usebruno.com/) com uma requisição para cada operação: API no ar, listar, buscar por id, cadastrar, atualizar, remover e confirmar a remoção. Abra a pasta no Bruno e execute as requisições em ordem.
+
+---
+
+## Tecnologias
+
+C# · .NET 10 (Minimal API) · Entity Framework Core · SQLite · HTML, CSS e JavaScript · Bruno
